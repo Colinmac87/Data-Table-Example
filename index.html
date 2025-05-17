@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h2 class="left-align">Piping Thickness Data (TIM IMPROVEMENT)</h2>
+    <h2 class="left-align">Piping Thickness Data</h2>
 
     <div class="button-container left-align">
         <button class="maximo-button" onclick="openAddRowModal()">Add New Measurement Row</button>
@@ -443,6 +443,7 @@
 
         function populateTestPointWeldDropdown() {
             const select = document.getElementById('edit-test-point');
+            if (!select) return; // Exit if element is not found
             select.innerHTML = ''; // Clear existing options
             testPoints.forEach(tp => {
                 const option = document.createElement('option');
@@ -481,10 +482,18 @@
             const dateInput = document.getElementById('new-row-date');
             // Set default date to today's date (2025-05-17)
             dateInput.value = '2025-05-17';
+            // Close the Edit Reading modal if it's open to prevent stale currentCell references
+            closeModal('modal-edit-reading');
+            currentCell = null; // Reset currentCell
+            currentTestPoint = null; // Reset currentTestPoint
             document.getElementById('modal-add-row').style.display = 'block';
         }
 
         function openCompareModal(tabId = 'compare-test-points') {
+            // Close the Edit Reading modal if it's open to prevent stale currentCell references
+            closeModal('modal-edit-reading');
+            currentCell = null; // Reset currentCell
+            currentTestPoint = null; // Reset currentTestPoint
             document.getElementById('modal-compare').style.display = 'block';
             // Simulate clicking the appropriate tab button
             const tabButton = document.querySelector(`#modal-compare .tab-button[onclick="showCompareTab('${tabId}')"]`);
@@ -496,7 +505,13 @@
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
+                console.log(`Closing modal: ${modalId}`); // Debug log to confirm closure
                 modal.style.display = 'none';
+            }
+            // Reset currentCell and currentTestPoint when closing the Edit Reading modal
+            if (modalId === 'modal-edit-reading') {
+                currentCell = null;
+                currentTestPoint = null;
             }
         }
 
@@ -537,47 +552,28 @@
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `<td>${new Date(date).toLocaleDateString('en-GB')}</td>` + '<td class="editable">-</td>'.repeat(11);
                 
-                // Collect all measurement rows
-                const measurementRows = [];
+                // Collect all rows to find the "Measurements" section
                 const rows = table.querySelectorAll('tr');
                 let measurementsSectionStart = -1;
-                let corrosionSectionStart = -1;
+                let measurementsSectionEnd = -1;
                 for (let i = 0; i < rows.length; i++) {
                     const row = rows[i];
                     const firstCell = row.querySelector('td');
                     if (firstCell && firstCell.textContent === 'Measurements') {
                         measurementsSectionStart = i;
                     } else if (firstCell && firstCell.textContent === 'Corrosion Rate') {
-                        corrosionSectionStart = i;
+                        measurementsSectionEnd = i - 1;
                         break;
-                    } else if (firstCell && firstCell.textContent.match(/\d{2}\/\d{2}\/\d{4}/)) {
-                        measurementRows.push(row);
                     }
                 }
 
-                // Add the new row to the measurement rows array
-                measurementRows.push(newRow);
-
-                // Sort measurement rows by date (oldest to newest)
-                measurementRows.sort((a, b) => {
-                    const dateA = new Date(a.cells[0].textContent.split('/').reverse().join('-'));
-                    const dateB = new Date(b.cells[0].textContent.split('/').reverse().join('-'));
-                    return dateA - dateB;
-                });
-
-                // Remove existing measurement rows from the table
-                for (let i = 0; i < measurementRows.length; i++) {
-                    const row = measurementRows[i];
-                    if (row.parentNode) {
-                        row.parentNode.removeChild(row);
-                    }
+                // If measurementsSectionEnd is not set (e.g., no "Corrosion Rate" section yet), set it to the last row
+                if (measurementsSectionEnd === -1) {
+                    measurementsSectionEnd = rows.length - 1;
                 }
 
-                // Reinsert sorted measurement rows after the "Measurements" section header
-                const insertionIndex = measurementsSectionStart + 1;
-                measurementRows.forEach(row => {
-                    table.insertBefore(row, table.children[insertionIndex]);
-                });
+                // Insert the new row at the end of the Measurements section
+                table.insertBefore(newRow, rows[measurementsSectionEnd + 1]);
 
                 // Add event listeners to the new row's editable cells
                 const newCells = newRow.querySelectorAll('.editable');
@@ -608,10 +604,18 @@
         }
 
         function updateCellColor(cell) {
+            if (!cell) return; // Exit if cell is invalid
+
             const diameter = cell.getAttribute('data-diameter');
             const anomalyRow = document.querySelector('.anomaly-criteria');
             const diameters = ['1.50', '4.00', '6.00', '10.00', '12.00', '14.00', '16.00', '18.00', '20.00', '22.00', '24.00'];
             const index = diameters.indexOf(diameter) + 1;
+
+            // Check if anomalyRow and its cells exist
+            if (!anomalyRow || !anomalyRow.cells || !anomalyRow.cells[index]) {
+                console.log('Anomaly criteria row or cell not found; skipping color update.');
+                return;
+            }
 
             const anomalyCriteria = parseFloat(anomalyRow.cells[index].textContent);
             const readingMatch = cell.textContent.match(/Min: ([\d.]+) mm/);
@@ -632,15 +636,32 @@
         function getNominalWallThickness(diameter) {
             const nominalRow = document.querySelector('.nominal-wall-thickness');
             const index = diameterMapping[diameter];
+
+            // Check if nominalRow and its cells exist
+            if (!nominalRow || !nominalRow.cells || !nominalRow.cells[index]) {
+                console.log('Nominal wall thickness row or cell not found; returning default value.');
+                return '-';
+            }
+
             return nominalRow.cells[index].textContent;
         }
 
         function updateCorrosionRates() {
             const table = document.querySelector('table tbody');
+            if (!table) {
+                console.log('Table body not found; skipping corrosion rate update.');
+                return;
+            }
+
             const rows = table.querySelectorAll('tr');
             const shortTermRow = document.querySelector('.short-term-corrosion-rate');
             const longTermRow = document.querySelector('.long-term-corrosion-rate');
             const diameters = ['1.50', '4.00', '6.00', '10.00', '12.00', '14.00', '16.00', '18.00', '20.00', '22.00', '24.00'];
+
+            if (!shortTermRow || !longTermRow) {
+                console.log('Corrosion rate rows not found; skipping update.');
+                return;
+            }
 
             // Clear previous calculations
             corrosionRateCalculations = [];
@@ -724,6 +745,9 @@
 
             // Reattach event listeners to editable cells after DOM updates
             attachEditableListeners();
+            // Reset currentCell after DOM update to prevent stale references
+            currentCell = null;
+            currentTestPoint = null;
         }
 
         function displayCorrosionRates() {
@@ -748,6 +772,11 @@
 
         function compareReadings() {
             const table = document.querySelector('table');
+            if (!table) {
+                console.log('Table not found; skipping compare readings.');
+                return;
+            }
+
             const rows = table.querySelectorAll('tr');
             const measurementRows = [];
 
@@ -896,6 +925,9 @@
 
             // Reattach event listeners to editable cells after DOM updates
             attachEditableListeners();
+            // Reset currentCell after DOM update to prevent stale references
+            currentCell = null;
+            currentTestPoint = null;
         }
 
         function handleCommentInput(event) {
@@ -939,6 +971,7 @@
             // Validate inputs before proceeding
             if (!reading || !testPoint) {
                 alert('Please enter a reading and select a test point or weld.');
+                closeModal('modal-edit-reading');
                 return;
             }
 
@@ -948,9 +981,11 @@
                     throw new Error('Reading must be a valid number.');
                 }
 
-                // Check if currentCell is valid
+                // Check if currentCell is valid; if not, silently exit and close the modal
                 if (!currentCell) {
-                    throw new Error('No cell is selected to edit. Please try again.');
+                    console.log('currentCell is invalid; closing modal without saving.');
+                    closeModal('modal-edit-reading');
+                    return;
                 }
 
                 // Update the cell content
@@ -969,6 +1004,7 @@
                 closeModal('modal-edit-reading');
             } catch (error) {
                 alert(error.message);
+                closeModal('modal-edit-reading');
             }
         }
     </script>

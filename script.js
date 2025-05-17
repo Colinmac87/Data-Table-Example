@@ -1,3 +1,3 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Event listeners for editable cells are now handled in index.html
+    // Event listeners are handled in index.html
 });

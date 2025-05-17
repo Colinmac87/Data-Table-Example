@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h2 class="left-align">Piping Thickness Data (TIM Improvement)</h2>
+    <h2 class="left-align">Piping Thickness Data (TIM IMPROVEMENT)</h2>
 
     <div class="button-container left-align">
         <button class="maximo-button" onclick="openAddRowModal()">Add New Measurement Row</button>
@@ -272,7 +272,7 @@
                     <div><label>W19:</label><input type="text" class="maximo-input"></div>
                     <div><label>W20:</label><input type="text" class="maximo-input"></div>
                     <div><label>W21:</label><input type="text" class="maximo-input"></div>
-                    <div><label>W22:</label><input type="text"貿 class="maximo-input"></div>
+                    <div><label>W22:</label><input type="text" class="maximo-input"></div>
                     <div><label>W23:</label><input type="text" class="maximo-input"></div>
                     <div><label>W24:</label><input type="text" class="maximo-input"></div>
                     <div><label>W25:</label><input type="text" class="maximo-input"></div>
@@ -327,10 +327,8 @@
                     <table id="compare-table-test-points">
                         <thead>
                             <tr>
-                                <th>Year</th>
                                 <th>Test Point</th>
-                                <th>Minimum Wall Thickness</th>
-                                <th>Nominal Wall Thickness (mm)</th>
+                                <!-- Years will be dynamically added -->
                                 <th>Comment</th>
                             </tr>
                         </thead>
@@ -344,10 +342,8 @@
                     <table id="compare-table-welds">
                         <thead>
                             <tr>
-                                <th>Year</th>
                                 <th>Weld</th>
-                                <th>Minimum Wall Thickness</th>
-                                <th>Nominal Wall Thickness (mm)</th>
+                                <!-- Years will be dynamically added -->
                                 <th>Comment</th>
                             </tr>
                         </thead>
@@ -410,14 +406,15 @@
     <script src="script.js"></script>
     <script>
         let currentCell = null;
+        let currentTestPoint = null; // Store the test point/weld separately to avoid DOM issues
         let comments = {
-            "30/10/2015-TP1": "Spot reading only",
-            "30/10/2019-W1": "Slight internal loss",
-            "30/10/2022-TP2": "Spot reading only",
-            "30/10/2022-TP3": "Slight internal loss",
-            "30/10/2024-W2": "Spot reading only",
-            "30/10/2024-TP4": "Slight internal loss"
-        }; // Object to store comments: { "year-testPoint": "comment" }
+            "TP1": "Spot reading only",
+            "W1": "Slight internal loss",
+            "TP2": "Spot reading only",
+            "TP3": "Slight internal loss",
+            "W2": "Spot reading only",
+            "TP4": "Slight internal loss"
+        }; // Updated to store one comment per test point/weld
         let testPoints = Array.from({ length: 33 }, (_, i) => `TP${i + 1}`);
         let welds = Array.from({ length: 40 }, (_, i) => `W${i + 1}`);
         const diameterMapping = {
@@ -769,76 +766,125 @@
                 return dateA - dateB;
             });
 
-            // Update Test Points tab
-            const testPointsTable = document.getElementById('compare-table-test-points').querySelector('tbody');
-            testPointsTable.innerHTML = '';
+            // Get all unique years
+            const years = measurementRows.map(row => row.cells[0].textContent);
 
-            measurementRows.forEach(row => {
-                const year = row.cells[0].textContent;
-                testPoints.forEach(tp => {
+            // Update Test Points tab
+            const testPointsTable = document.getElementById('compare-table-test-points');
+            const testPointsHead = testPointsTable.querySelector('thead tr');
+            const testPointsBody = testPointsTable.querySelector('tbody');
+            
+            // Clear existing headers and body
+            testPointsHead.innerHTML = '<th>Test Point</th>';
+            testPointsBody.innerHTML = '';
+
+            // Add year columns dynamically
+            years.forEach(year => {
+                const th = document.createElement('th');
+                th.textContent = year;
+                testPointsHead.appendChild(th);
+            });
+            testPointsHead.innerHTML += '<th>Comment</th>';
+
+            // Populate rows for each test point
+            testPoints.forEach(tp => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${tp}</td>`;
+
+                // Add minimum wall thickness for each year, with nominal thickness below
+                years.forEach(year => {
                     let reading = '-';
                     let nominalThickness = '-';
                     let found = false;
-                    for (let i = 1; i < row.cells.length; i++) {
-                        const cell = row.cells[i];
-                        const testPointMatch = cell.getAttribute('data-test-point');
-                        const readingMatch = cell.textContent.match(/Min: ([\d.]+) mm/);
-                        if (testPointMatch === tp && readingMatch) {
-                            reading = `${readingMatch[1]} mm`;
-                            nominalThickness = getNominalWallThickness(cell.getAttribute('data-diameter'));
-                            found = true;
-                            break;
+                    for (let i = 0; i < measurementRows.length; i++) {
+                        const row = measurementRows[i];
+                        if (row.cells[0].textContent === year) {
+                            for (let j = 1; j < row.cells.length; j++) {
+                                const cell = row.cells[j];
+                                const testPointMatch = cell.getAttribute('data-test-point');
+                                const readingMatch = cell.textContent.match(/Min: ([\d.]+) mm/);
+                                if (testPointMatch === tp && readingMatch) {
+                                    reading = `${readingMatch[1]} mm`;
+                                    nominalThickness = getNominalWallThickness(cell.getAttribute('data-diameter'));
+                                    found = true;
+                                    break;
+                                }
+                            }
                         }
+                        if (found) break;
                     }
-
-                    const commentKey = `${year}-${tp}`;
-                    const comment = comments[commentKey] || '';
-                    const newRow = document.createElement('tr');
-                    newRow.innerHTML = `
-                        <td>${year}</td>
-                        <td>${tp}</td>
-                        <td>${reading}</td>
-                        <td>${reading !== '-' ? nominalThickness : '-'}</td>
-                        <td><input type="text" class="comment-input" data-key="${commentKey}" value="${comment}" placeholder="Add comment"></td>
-                    `;
-                    testPointsTable.appendChild(newRow);
+                    if (reading === '-') {
+                        row.innerHTML += `<td>${reading}</td>`;
+                    } else {
+                        row.innerHTML += `<td>${reading}<br><span style="color: #3B82F6; font-size: 12px;">Nominal: ${nominalThickness} mm</span></td>`;
+                    }
                 });
+
+                const commentKey = tp;
+                const comment = comments[commentKey] || '';
+                row.innerHTML += `
+                    <td><input type="text" class="comment-input" data-key="${commentKey}" value="${comment}" placeholder="Add comment"></td>
+                `;
+                testPointsBody.appendChild(row);
             });
 
             // Update Welds tab
-            const weldsTable = document.getElementById('compare-table-welds').querySelector('tbody');
-            weldsTable.innerHTML = '';
+            const weldsTable = document.getElementById('compare-table-welds');
+            const weldsHead = weldsTable.querySelector('thead tr');
+            const weldsBody = weldsTable.querySelector('tbody');
 
-            measurementRows.forEach(row => {
-                const year = row.cells[0].textContent;
-                welds.forEach(weld => {
+            // Clear existing headers and body
+            weldsHead.innerHTML = '<th>Weld</th>';
+            weldsBody.innerHTML = '';
+
+            // Add year columns dynamically
+            years.forEach(year => {
+                const th = document.createElement('th');
+                th.textContent = year;
+                weldsHead.appendChild(th);
+            });
+            weldsHead.innerHTML += '<th>Comment</th>';
+
+            // Populate rows for each weld
+            welds.forEach(weld => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${weld}</td>`;
+
+                // Add minimum wall thickness for each year, with nominal thickness below
+                years.forEach(year => {
                     let reading = '-';
                     let nominalThickness = '-';
                     let found = false;
-                    for (let i = 1; i < row.cells.length; i++) {
-                        const cell = row.cells[i];
-                        const testPointMatch = cell.getAttribute('data-test-point');
-                        const readingMatch = cell.textContent.match(/Min: ([\d.]+) mm/);
-                        if (testPointMatch === weld && readingMatch) {
-                            reading = `${readingMatch[1]} mm`;
-                            nominalThickness = getNominalWallThickness(cell.getAttribute('data-diameter'));
-                            found = true;
-                            break;
+                    for (let i = 0; i < measurementRows.length; i++) {
+                        const row = measurementRows[i];
+                        if (row.cells[0].textContent === year) {
+                            for (let j = 1; j < row.cells.length; j++) {
+                                const cell = row.cells[j];
+                                const testPointMatch = cell.getAttribute('data-test-point');
+                                const readingMatch = cell.textContent.match(/Min: ([\d.]+) mm/);
+                                if (testPointMatch === weld && readingMatch) {
+                                    reading = `${readingMatch[1]} mm`;
+                                    nominalThickness = getNominalWallThickness(cell.getAttribute('data-diameter'));
+                                    found = true;
+                                    break;
+                                }
+                            }
                         }
+                        if (found) break;
                     }
-
-                    const commentKey = `${year}-${weld}`;
-                    const comment = comments[commentKey] || '';
-                    const newRow = document.createElement('tr');
-                    newRow.innerHTML = `
-                        <td>${year}</td>
-                        <td>${weld}</td>
-                        <td>${reading}</td>
-                        <td>${reading !== '-' ? nominalThickness : '-'}</td>
-                        <td><input type="text" class="comment-input" data-key="${commentKey}" value="${comment}" placeholder="Add comment"></td>
-                    `;
-                    weldsTable.appendChild(newRow);
+                    if (reading === '-') {
+                        row.innerHTML += `<td>${reading}</td>`;
+                    } else {
+                        row.innerHTML += `<td>${reading}<br><span style="color: #3B82F6; font-size: 12px;">Nominal: ${nominalThickness} mm</span></td>`;
+                    }
                 });
+
+                const commentKey = weld;
+                const comment = comments[commentKey] || '';
+                row.innerHTML += `
+                    <td><input type="text" class="comment-input" data-key="${commentKey}" value="${comment}" placeholder="Add comment"></td>
+                `;
+                weldsBody.appendChild(row);
             });
 
             // Add event listeners to comment inputs in both tabs
@@ -873,9 +919,9 @@
             const currentText = cell.textContent;
             const readingMatch = currentText.match(/Min: ([\d.]+) mm/);
             const testPointMatch = currentText.match(/<br>(TP\d+|W\d+)/);
-            const year = cell.parentElement.cells[0].textContent;
             const testPoint = testPointMatch ? testPointMatch[1] : 'TP1';
-            const commentKey = `${year}-${testPoint}`;
+            currentTestPoint = testPoint; // Store the test point separately
+            const commentKey = testPoint;
             const comment = comments[commentKey] || '';
 
             document.getElementById('edit-reading-value').value = readingMatch ? readingMatch[1] : '';
@@ -902,14 +948,18 @@
                     throw new Error('Reading must be a valid number.');
                 }
 
+                // Check if currentCell is valid
+                if (!currentCell) {
+                    throw new Error('No cell is selected to edit. Please try again.');
+                }
+
                 // Update the cell content
                 currentCell.innerHTML = `Min: ${parsedReading.toFixed(2)} mm<br>${testPoint}`;
                 currentCell.classList.add('filled');
                 currentCell.setAttribute('data-test-point', testPoint);
 
-                // Save the comment
-                const year = currentCell.parentElement.cells[0].textContent;
-                const commentKey = `${year}-${testPoint}`;
+                // Save the comment using the test point (single comment per test point/weld)
+                const commentKey = testPoint;
                 comments[commentKey] = comment;
 
                 // Update UI and close modal

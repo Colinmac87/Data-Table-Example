@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piping Thickness Data)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h2 class="left-align">Piping Thickness Data (Concept)</h2>
+
+    <div class="button-container left-align">
+        <button class="maximo-button" onclick="openAddRowModal()">Add New Measurement Row</button>
+        <button class="maximo-button" onclick="openCompareModal()">Compare Readings</button>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>DIAMETER (INCHES)</th>
+                    <th>1.50</th>
+                    <th>4.00</th>
+                    <th>6.00</th>
+                    <th>10.00</th>
+                    <th>12.00</th>
+                    <th>14.00</th>
+                    <th>16.00</th>
+                    <th>18.00</th>
+                    <th>20.00</th>
+                    <th>22.00</th>
+                    <th>24.00</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Outer Diameter (inches)</td>
+                    <td>1.90</td>
+                    <td>4.50</td>
+                    <td>6.63</td>
+                    <td>10.75</td>
+                    <td>12.75</td>
+                    <td>14.00</td>
+                    <td>16.00</td>
+                    <td>18.00</td>
+                    <td>20.00</td>
+                    <td>22.00</td>
+                    <td>24.00</td>
+                </tr>
+                <tr class="nominal-wall-thickness">
+                    <td>Nominal Wall Thickness (mm)</td>
+                    <td>7.14</td>
+                    <td>11.13</td>
+                    <td>14.27</td>
+                    <td>18.26</td>
+                    <td>21.44</td>
+                    <td>23.82</td>
+                    <td>26.19</td>
+                    <td>29.36</td>
+                    <td>32.54</td>
+                    <td>34.92</td>
+                    <td>38.89</td>
+                </tr>
+                <tr class="section-header">
+                    <td colspan="12">Measurements</td>
+                </tr>
+                <tr>
+                    <td>30/10/2015</td>
+                    <td class="editable" data-diameter="1.50" data-test-point="TP1">Min: 9.30 mm<br>TP1</td>
+                    <td class="editable" data-diameter="4.00">-</td>
+                    <td class="editable" data-diameter="6.00">-</td>
+                    <td class="editable" data-diameter="10.00">-</td>
+                    <td class="editable" data-diameter="12.00">-</td>
+                    <td class="editable" data-diameter="14.00">-</td>
+                    <td class="editable" data-diameter="16.00">-</td>
+                    <td class="editable" data-diameter="18.00">-</td>
+                    <td class="editable" data-diameter="20.00">-</td>
+                    <td class="editable" data-diameter="22.00">-</td>
+                    <td class="editable" data-diameter="24.00">-</td>
+                </tr>
+                <tr>
+                    <td>30/10/2019</td>
+                    <td class="editable" data-diameter="1.50">-</td>
+                    <td class="editable" data-diameter="4.00" data-test-point="W1">Min: 10.80 mm<br>W1</td>
+                    <td class="editable" data-diameter="6.00">-</td>
+                    <td class="editable" data-diameter="10.00">-</td>
+                    <td class="editable" data-diameter="12.00">-</td>
+                    <td class="editable" data-diameter="14.00">-</td>
+                    <td class="editable" data-diameter="16.00">-</td>
+                    <td class="editable" data-diameter="18.00">-</td>
+                    <td class="editable" data-diameter="20.00">-</td>
+                    <td class="editable" data-diameter="22.00">-</td>
+                    <td class="editable" data-diameter="24.00">-</td>
+                </tr>
+                <tr>
+                    <td>30/10/2022</td>
+                    <td class="editable" data-diameter="1.50" data-test-point="TP2">Min: 8.90 mm<br>TP2</td>
+                    <td class="editable" data-diameter="4.00">-</td>
+                    <td class="editable" data-diameter="6.00" data-test-point="TP3">Min: 12.30 mm<br>TP3</td>
+                    <td class="editable" data-diameter="10.00">-</td>
+                    <td class="editable" data-diameter="12.00">-</td>
+                    <td class="editable" data-diameter="14.00">-</td>
+                    <td class="editable" data-diameter="16.00">-</td>
+                    <td class="editable" data-diameter="18.00">-</td>
+                    <td class="editable" data-diameter="20.00">-</td>
+                    <td class="editable" data-diameter="22.00">-</td>
+                    <td class="editable" data-diameter="24.00">-</td>
+                </tr>
+                <tr>
+                    <td>30/10/2024</td>
+                    <td class="editable" data-diameter="1.50" data-test-point="W2">Min: 4.70 mm<br>W2</td>
+                    <td class="editable" data-diameter="4.00">-</td>
+                    <td class="editable" data-diameter="6.00">-</td>
+                    <td class="editable" data-diameter="10.00" data-test-point="TP4">Min: 11.80 mm<br>TP4</td>
+                    <td class="editable" data-diameter="12.00">-</td>
+                    <td class="editable" data-diameter="14.00">-</td>
+                    <td class="editable" data-diameter="16.00">-</td>
+                    <td class="editable" data-diameter="18.00">-</td>
+                    <td class="editable" data-diameter="20.00">-</td>
+                    <td class="editable" data-diameter="22.00">-</td>
+                    <td class="editable" data-diameter="24.00">-</td>
+                </tr>
+                <tr class="section-header">
+                    <td colspan="12">Corrosion Rate</td>
+                </tr>
+                <tr class="short-term-corrosion-rate">
+                    <td>Short Term Corrosion Rate (mm/year)</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr class="long-term-corrosion-rate">
+                    <td>Long Term Corrosion Rate (mm/year)</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr class="section-header">
+                    <td colspan="12">Minimum</td>
+                </tr>
+                <tr>
+                    <td>Structural Tmin (mm)</td>
+                    <td>2.50</td>
+                    <td>3.50</td>
+                    <td>3.50</td>
+                    <td>4.00</td>
+                    <td>4.50</td>
+                    <td>5.00</td>
+                    <td>5.00</td>
+                    <td>5.00</td>
+                    <td>6.00</td>
+                    <td>0.00</td>
+                    <td>6.50</td>
+                </tr>
+                <tr>
+                    <td>31.3 Tmin (mm)</td>
+                    <td>2.19</td>
+                    <td>5.19</td>
+                    <td>7.64</td>
+                    <td>12.39</td>
+                    <td>14.70</td>
+                    <td>16.14</td>
+                    <td>18.45</td>
+                    <td>20.75</td>
+                    <td>23.06</td>
+                    <td>25.36</td>
+                    <td>27.67</td>
+                </tr>
+                <tr class="anomaly-criteria">
+                    <td>Anomaly Criteria</td>
+                    <td>4.82</td>
+                    <td>8.16</td>
+                    <td>10.95</td>
+                    <td>15.33</td>
+                    <td>18.07</td>
+                    <td>19.98</td>
+                    <td>22.32</td>
+                    <td>25.06</td>
+                    <td>27.80</td>
+                    <td>30.14</td>
+                    <td>33.28</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="modal-readings" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modal-readings')">×</span>
+            <h3>Enter Readings for All Test Points and Welds</h3>
+            <div class="modal-tabs">
+                <button class="tab-button active" onclick="showTab('test-points')">Test Points</button>
+                <button class="tab-button" onclick="showTab('welds')">Welds</button>
+            </div>
+
+            <div id="test-points" class="tab-content active">
+                <h4>Test Points (TP1 - TP33)</h4>
+                <div class="grid">
+                    <div><label>TP1:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP2:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP3:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP4:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP5:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP6:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP7:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP8:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP9:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP10:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP11:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP12:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP13:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP14:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP15:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP16:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP17:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP18:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP19:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP20:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP21:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP22:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP23:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP24:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP25:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP26:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP27:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP28:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP29:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP30:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP31:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP32:</label><input type="text" class="maximo-input"></div>
+                    <div><label>TP33:</label><input type="text" class="maximo-input"></div>
+                </div>
+            </div>
+
+            <div id="welds" class="tab-content">
+                <h4>Welds (W1 - W40)</h4>
+                <div class="grid">
+                    <div><label>W1:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W2:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W3:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W4:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W5:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W6:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W7:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W8:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W9:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W10:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W11:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W12:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W13:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W14:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W15:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W16:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W17:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W18:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W19:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W20:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W21:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W22:</label><input type="text"貿 class="maximo-input"></div>
+                    <div><label>W23:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W24:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W25:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W26:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W27:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W28:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W29:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W30:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W31:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W32:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W33:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W34:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W35:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W36:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W37:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W38:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W39:</label><input type="text" class="maximo-input"></div>
+                    <div><label>W40:</label><input type="text" class="maximo-input"></div>
+                </div>
+            </div>
+
+            <button class="maximo-button save-button button-spacing" onclick="saveReadings()">Save All Readings</button>
+        </div>
+    </div>
+
+    <div id="modal-add-row" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modal-add-row')">×</span>
+            <h3>Select Date for New Measurement Row</h3>
+            <div class="grid">
+                <div>
+                    <label>Date:</label>
+                    <input type="date" id="new-row-date" class="maximo-input">
+                </div>
+            </div>
+            <button class="maximo-button button-spacing" onclick="addRow()">Add Row</button>
+        </div>
+    </div>
+
+    <div id="modal-compare" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modal-compare')">×</span>
+            <h3>All Readings Across Years</h3>
+            <div class="modal-tabs">
+                <button class="tab-button active" onclick="showCompareTab('compare-test-points')">Test Points</button>
+                <button class="tab-button" onclick="showCompareTab('compare-welds')">Welds</button>
+                <button class="tab-button" onclick="showCompareTab('compare-corrosion-rates')">Corrosion Rates</button>
+            </div>
+            <div id="compare-test-points" class="tab-content active">
+                <h4>Test Points</h4>
+                <div class="compare-table-scroll">
+                    <table id="compare-table-test-points">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Test Point</th>
+                                <th>Minimum Wall Thickness</th>
+                                <th>Nominal Wall Thickness (mm)</th>
+                                <th>Comment</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="compare-welds" class="tab-content">
+                <h4>Welds</h4>
+                <div class="compare-table-scroll">
+                    <table id="compare-table-welds">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Weld</th>
+                                <th>Minimum Wall Thickness</th>
+                                <th>Nominal Wall Thickness (mm)</th>
+                                <th>Comment</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="compare-corrosion-rates" class="tab-content">
+                <h4>Corrosion Rates</h4>
+                <div class="compare-table-scroll">
+                    <table id="compare-table-corrosion-rates">
+                        <thead>
+                            <tr>
+                                <th>Diameter (inches)</th>
+                                <th>Type</th>
+                                <th>Rate (mm/year)</th>
+                                <th>Formula</th>
+                                <th>Readings Used</th>
+                                <th>Time Difference</th>
+                                <th>Calculation</th>
+                                <th>Dates</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-edit-reading" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modal-edit-reading')">×</span>
+            <h3>Edit Reading</h3>
+            <div class="grid">
+                <div>
+                    <label>Minimum Reading (mm):</label>
+                    <input type="text" id="edit-reading-value" class="maximo-input">
+                </div>
+                <div>
+                    <label>Test Point/Weld:</label>
+                    <select id="edit-test-point" class="maximo-input">
+                        <!-- Options will be dynamically populated -->
+                    </select>
+                </div>
+                <div>
+                    <label>Add New Test Point/Weld:</label>
+                    <input type="text" id="new-test-point-weld" class="maximo-input" placeholder="e.g., TP34 or W41">
+                    <button class="maximo-button button-spacing" onclick="addNewTestPointWeld()">Add to List</button>
+                </div>
+                <div>
+                    <label>Comment:</label>
+                    <input type="text" id="edit-comment" class="maximo-input" placeholder="Add a comment">
+                </div>
+            </div>
+            <button class="maximo-button button-spacing" onclick="saveEditedReading()">Save Reading</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let currentCell = null;
+        let comments = {
+            "30/10/2015-TP1": "Spot reading only",
+            "30/10/2019-W1": "Slight internal loss",
+            "30/10/2022-TP2": "Spot reading only",
+            "30/10/2022-TP3": "Slight internal loss",
+            "30/10/2024-W2": "Spot reading only",
+            "30/10/2024-TP4": "Slight internal loss"
+        }; // Object to store comments: { "year-testPoint": "comment" }
+        let testPoints = Array.from({ length: 33 }, (_, i) => `TP${i + 1}`);
+        let welds = Array.from({ length: 40 }, (_, i) => `W${i + 1}`);
+        const diameterMapping = {
+            "1.50": 1,
+            "4.00": 2,
+            "6.00": 3,
+            "10.00": 4,
+            "12.00": 5,
+            "14.00": 6,
+            "16.00": 7,
+            "18.00": 8,
+            "20.00": 9,
+            "22.00": 10,
+            "24.00": 11
+        };
+        let corrosionRateCalculations = []; // Store calculations for the new tab
+
+        function attachEditableListeners() {
+            const editableCells = document.querySelectorAll('.editable');
+            editableCells.forEach(cell => {
+                // Remove existing listeners to prevent duplicates
+                cell.removeEventListener('click', openEditReadingModal);
+                cell.addEventListener('click', () => openEditReadingModal(cell));
+            });
+        }
+
+        function populateTestPointWeldDropdown() {
+            const select = document.getElementById('edit-test-point');
+            select.innerHTML = ''; // Clear existing options
+            testPoints.forEach(tp => {
+                const option = document.createElement('option');
+                option.value = tp;
+                option.textContent = tp;
+                select.appendChild(option);
+            });
+            welds.forEach(weld => {
+                const option = document.createElement('option');
+                option.value = weld;
+                option.textContent = weld;
+                select.appendChild(option);
+            });
+        }
+
+        function addNewTestPointWeld() {
+            const newValue = document.getElementById('new-test-point-weld').value.trim();
+            if (newValue) {
+                if (newValue.startsWith('TP') && !testPoints.includes(newValue)) {
+                    testPoints.push(newValue);
+                } else if (newValue.startsWith('W') && !welds.includes(newValue)) {
+                    welds.push(newValue);
+                } else {
+                    alert('Invalid or duplicate Test Point/Weld. Please use format TP# or W# and ensure it is unique.');
+                    return;
+                }
+                populateTestPointWeldDropdown();
+                document.getElementById('new-test-point-weld').value = ''; // Clear the input
+                document.getElementById('edit-test-point').value = newValue; // Select the newly added value
+            } else {
+                alert('Please enter a Test Point or Weld (e.g., TP34 or W41).');
+            }
+        }
+
+        function openAddRowModal() {
+            const dateInput = document.getElementById('new-row-date');
+            // Set default date to today's date (2025-05-17)
+            dateInput.value = '2025-05-17';
+            document.getElementById('modal-add-row').style.display = 'block';
+        }
+
+        function openCompareModal(tabId = 'compare-test-points') {
+            document.getElementById('modal-compare').style.display = 'block';
+            // Simulate clicking the appropriate tab button
+            const tabButton = document.querySelector(`#modal-compare .tab-button[onclick="showCompareTab('${tabId}')"]`);
+            if (tabButton) {
+                tabButton.click();
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showCompareTab(tabId) {
+            document.querySelectorAll('#modal-compare .tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('#modal-compare .tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabId === 'compare-test-points') {
+                compareReadings(); // Refresh Test Points tab
+            } else if (tabId === 'compare-welds') {
+                compareReadings(); // Refresh Welds tab
+            } else if (tabId === 'compare-corrosion-rates') {
+                displayCorrosionRates(); // Populate Corrosion Rates tab
+            }
+        }
+
+        function addRow() {
+            const date = document.getElementById('new-row-date').value;
+            if (date) {
+                const table = document.querySelector('table tbody');
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `<td>${new Date(date).toLocaleDateString('en-GB')}</td>` + '<td class="editable">-</td>'.repeat(11);
+                
+                // Collect all measurement rows
+                const measurementRows = [];
+                const rows = table.querySelectorAll('tr');
+                let measurementsSectionStart = -1;
+                let corrosionSectionStart = -1;
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+                    const firstCell = row.querySelector('td');
+                    if (firstCell && firstCell.textContent === 'Measurements') {
+                        measurementsSectionStart = i;
+                    } else if (firstCell && firstCell.textContent === 'Corrosion Rate') {
+                        corrosionSectionStart = i;
+                        break;
+                    } else if (firstCell && firstCell.textContent.match(/\d{2}\/\d{2}\/\d{4}/)) {
+                        measurementRows.push(row);
+                    }
+                }
+
+                // Add the new row to the measurement rows array
+                measurementRows.push(newRow);
+
+                // Sort measurement rows by date (oldest to newest)
+                measurementRows.sort((a, b) => {
+                    const dateA = new Date(a.cells[0].textContent.split('/').reverse().join('-'));
+                    const dateB = new Date(b.cells[0].textContent.split('/').reverse().join('-'));
+                    return dateA - dateB;
+                });
+
+                // Remove existing measurement rows from the table
+                for (let i = 0; i < measurementRows.length; i++) {
+                    const row = measurementRows[i];
+                    if (row.parentNode) {
+                        row.parentNode.removeChild(row);
+                    }
+                }
+
+                // Reinsert sorted measurement rows after the "Measurements" section header
+                const insertionIndex = measurementsSectionStart + 1;
+                measurementRows.forEach(row => {
+                    table.insertBefore(row, table.children[insertionIndex]);
+                });
+
+                // Add event listeners to the new row's editable cells
+                const newCells = newRow.querySelectorAll('.editable');
+                newCells.forEach(cell => {
+                    cell.addEventListener('click', () => openEditReadingModal(cell));
+                    updateCellColor(cell);
+                });
+
+                closeModal('modal-add-row');
+                updateCorrosionRates();
+                compareReadings();
+            } else {
+                alert('Please select a date.');
+            }
+        }
+
+        function saveReadings() {
+            alert('Readings saved!');
+            closeModal('modal-readings');
+        }
+
+        function calculateTimeDifference(startDateStr, endDateStr) {
+            const startDate = new Date(startDateStr.split('/').reverse().join('-'));
+            const endDate = new Date(endDateStr.split('/').reverse().join('-'));
+            const timeDiff = endDate - startDate;
+            const yearsDiff = timeDiff / (1000 * 60 * 60 * 24 * 365.25);
+            return yearsDiff;
+        }
+
+        function updateCellColor(cell) {
+            const diameter = cell.getAttribute('data-diameter');
+            const anomalyRow = document.querySelector('.anomaly-criteria');
+            const diameters = ['1.50', '4.00', '6.00', '10.00', '12.00', '14.00', '16.00', '18.00', '20.00', '22.00', '24.00'];
+            const index = diameters.indexOf(diameter) + 1;
+
+            const anomalyCriteria = parseFloat(anomalyRow.cells[index].textContent);
+            const readingMatch = cell.textContent.match(/Min: ([\d.]+) mm/);
+            const reading = readingMatch ? parseFloat(readingMatch[1]) : null;
+
+            // Remove existing color classes
+            cell.classList.remove('below-nominal-anomaly', 'above-nominal');
+
+            if (reading !== null) {
+                if (reading < anomalyCriteria) {
+                    cell.classList.add('below-nominal-anomaly'); // Orange
+                } else {
+                    cell.classList.add('above-nominal'); // Green
+                }
+            }
+        }
+
+        function getNominalWallThickness(diameter) {
+            const nominalRow = document.querySelector('.nominal-wall-thickness');
+            const index = diameterMapping[diameter];
+            return nominalRow.cells[index].textContent;
+        }
+
+        function updateCorrosionRates() {
+            const table = document.querySelector('table tbody');
+            const rows = table.querySelectorAll('tr');
+            const shortTermRow = document.querySelector('.short-term-corrosion-rate');
+            const longTermRow = document.querySelector('.long-term-corrosion-rate');
+            const diameters = ['1.50', '4.00', '6.00', '10.00', '12.00', '14.00', '16.00', '18.00', '20.00', '22.00', '24.00'];
+
+            // Clear previous calculations
+            corrosionRateCalculations = [];
+
+            // Initialize corrosion rate cells to "-"
+            for (let i = 1; i < shortTermRow.cells.length; i++) {
+                shortTermRow.cells[i].innerHTML = '-';
+                longTermRow.cells[i].innerHTML = '-';
+            }
+
+            // Collect all measurement rows
+            const measurementRows = [];
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length > 0 && cells[0].textContent.match(/\d{2}\/\d{2}\/\d{4}/)) {
+                    measurementRows.push(row);
+                }
+            });
+
+            // Sort measurement rows by date (ascending)
+            measurementRows.sort((a, b) => {
+                const dateA = new Date(a.cells[0].textContent.split('/').reverse().join('-'));
+                const dateB = new Date(b.cells[0].textContent.split('/').reverse().join('-'));
+                return dateA - dateB;
+            });
+
+            // Calculate corrosion rates for each diameter
+            diameters.forEach((diameter, index) => {
+                const readings = [];
+                measurementRows.forEach(row => {
+                    const cell = row.cells[index + 1];
+                    const readingMatch = cell.textContent.match(/Min: ([\d.]+) mm/);
+                    if (readingMatch) {
+                        const reading = parseFloat(readingMatch[1]);
+                        const date = row.cells[0].textContent;
+                        readings.push({ date, reading });
+                    }
+                });
+
+                // Need at least 2 readings to calculate corrosion rates
+                if (readings.length >= 2) {
+                    // Short Term Corrosion Rate (last two readings)
+                    const lastTwo = readings.slice(-2);
+                    const shortTermTimeDiff = calculateTimeDifference(lastTwo[0].date, lastTwo[1].date);
+                    if (shortTermTimeDiff > 0) { // Ensure time difference is positive
+                        const shortTermRate = (lastTwo[0].reading - lastTwo[1].reading) / shortTermTimeDiff;
+                        const shortTermCell = shortTermRow.cells[index + 1];
+                        shortTermCell.innerHTML = shortTermRate.toFixed(2);
+                        corrosionRateCalculations.push({
+                            diameter,
+                            type: 'Short Term',
+                            rate: shortTermRate.toFixed(2),
+                            formula: 'ST = (tinitial - tactual) / time (years)',
+                            readings: `(${lastTwo[0].reading} mm - ${lastTwo[1].reading} mm)`,
+                            timeDiff: `${shortTermTimeDiff.toFixed(2)} years`,
+                            calculation: `${(lastTwo[0].reading - lastTwo[1].reading).toFixed(2)} mm / ${shortTermTimeDiff.toFixed(2)} years`,
+                            dates: `${lastTwo[0].date} to ${lastTwo[1].date}`
+                        });
+                    }
+
+                    // Long Term Corrosion Rate (earliest to latest)
+                    const firstLast = [readings[0], readings[readings.length - 1]];
+                    const longTermTimeDiff = calculateTimeDifference(firstLast[0].date, firstLast[1].date);
+                    if (longTermTimeDiff > 0) { // Ensure time difference is positive
+                        const longTermRate = (firstLast[0].reading - firstLast[1].reading) / longTermTimeDiff;
+                        const longTermCell = longTermRow.cells[index + 1];
+                        longTermCell.innerHTML = longTermRate.toFixed(2);
+                        corrosionRateCalculations.push({
+                            diameter,
+                            type: 'Long Term',
+                            rate: longTermRate.toFixed(2),
+                            formula: 'LT = (tinitial - tactual) / time (years)',
+                            readings: `(${firstLast[0].reading} mm - ${firstLast[1].reading} mm)`,
+                            timeDiff: `${longTermTimeDiff.toFixed(2)} years`,
+                            calculation: `${(firstLast[0].reading - firstLast[1].reading).toFixed(2)} mm / ${longTermTimeDiff.toFixed(2)} years`,
+                            dates: `${firstLast[0].date} to ${firstLast[1].date}`
+                        });
+                    }
+                }
+            });
+
+            // Reattach event listeners to editable cells after DOM updates
+            attachEditableListeners();
+        }
+
+        function displayCorrosionRates() {
+            const tableBody = document.getElementById('compare-table-corrosion-rates').querySelector('tbody');
+            tableBody.innerHTML = ''; // Clear previous content
+
+            corrosionRateCalculations.forEach(calc => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${calc.diameter}</td>
+                    <td>${calc.type}</td>
+                    <td>${calc.rate}</td>
+                    <td>${calc.formula}</td>
+                    <td>${calc.readings}</td>
+                    <td>${calc.timeDiff}</td>
+                    <td>${calc.calculation}</td>
+                    <td>${calc.dates}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function compareReadings() {
+            const table = document.querySelector('table');
+            const rows = table.querySelectorAll('tr');
+            const measurementRows = [];
+
+            // Collect all measurement rows
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length > 0 && cells[0].textContent.match(/\d{2}\/\d{2}\/\d{4}/)) {
+                    measurementRows.push(row);
+                }
+            });
+
+            // Sort measurement rows by date (ascending)
+            measurementRows.sort((a, b) => {
+                const dateA = new Date(a.cells[0].textContent.split('/').reverse().join('-'));
+                const dateB = new Date(b.cells[0].textContent.split('/').reverse().join('-'));
+                return dateA - dateB;
+            });
+
+            // Update Test Points tab
+            const testPointsTable = document.getElementById('compare-table-test-points').querySelector('tbody');
+            testPointsTable.innerHTML = '';
+
+            measurementRows.forEach(row => {
+                const year = row.cells[0].textContent;
+                testPoints.forEach(tp => {
+                    let reading = '-';
+                    let nominalThickness = '-';
+                    let found = false;
+                    for (let i = 1; i < row.cells.length; i++) {
+                        const cell = row.cells[i];
+                        const testPointMatch = cell.getAttribute('data-test-point');
+                        const readingMatch = cell.textContent.match(/Min: ([\d.]+) mm/);
+                        if (testPointMatch === tp && readingMatch) {
+                            reading = `${readingMatch[1]} mm`;
+                            nominalThickness = getNominalWallThickness(cell.getAttribute('data-diameter'));
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    const commentKey = `${year}-${tp}`;
+                    const comment = comments[commentKey] || '';
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td>${year}</td>
+                        <td>${tp}</td>
+                        <td>${reading}</td>
+                        <td>${reading !== '-' ? nominalThickness : '-'}</td>
+                        <td><input type="text" class="comment-input" data-key="${commentKey}" value="${comment}" placeholder="Add comment"></td>
+                    `;
+                    testPointsTable.appendChild(newRow);
+                });
+            });
+
+            // Update Welds tab
+            const weldsTable = document.getElementById('compare-table-welds').querySelector('tbody');
+            weldsTable.innerHTML = '';
+
+            measurementRows.forEach(row => {
+                const year = row.cells[0].textContent;
+                welds.forEach(weld => {
+                    let reading = '-';
+                    let nominalThickness = '-';
+                    let found = false;
+                    for (let i = 1; i < row.cells.length; i++) {
+                        const cell = row.cells[i];
+                        const testPointMatch = cell.getAttribute('data-test-point');
+                        const readingMatch = cell.textContent.match(/Min: ([\d.]+) mm/);
+                        if (testPointMatch === weld && readingMatch) {
+                            reading = `${readingMatch[1]} mm`;
+                            nominalThickness = getNominalWallThickness(cell.getAttribute('data-diameter'));
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    const commentKey = `${year}-${weld}`;
+                    const comment = comments[commentKey] || '';
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td>${year}</td>
+                        <td>${weld}</td>
+                        <td>${reading}</td>
+                        <td>${reading !== '-' ? nominalThickness : '-'}</td>
+                        <td><input type="text" class="comment-input" data-key="${commentKey}" value="${comment}" placeholder="Add comment"></td>
+                    `;
+                    weldsTable.appendChild(newRow);
+                });
+            });
+
+            // Add event listeners to comment inputs in both tabs
+            const commentInputs = document.querySelectorAll('#modal-compare .comment-input');
+            commentInputs.forEach(input => {
+                input.removeEventListener('input', handleCommentInput); // Prevent duplicate listeners
+                input.addEventListener('input', handleCommentInput);
+            });
+
+            // Reattach event listeners to editable cells after DOM updates
+            attachEditableListeners();
+        }
+
+        function handleCommentInput(event) {
+            const key = event.target.getAttribute('data-key');
+            comments[key] = event.target.value;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const editableCells = document.querySelectorAll('.editable');
+            editableCells.forEach(cell => {
+                cell.addEventListener('click', () => openEditReadingModal(cell));
+                updateCellColor(cell); // Initial coloring on page load
+            });
+
+            // Initial calculation of corrosion rates
+            updateCorrosionRates();
+        });
+
+        function openEditReadingModal(cell) {
+            currentCell = cell;
+            const currentText = cell.textContent;
+            const readingMatch = currentText.match(/Min: ([\d.]+) mm/);
+            const testPointMatch = currentText.match(/<br>(TP\d+|W\d+)/);
+            const year = cell.parentElement.cells[0].textContent;
+            const testPoint = testPointMatch ? testPointMatch[1] : 'TP1';
+            const commentKey = `${year}-${testPoint}`;
+            const comment = comments[commentKey] || '';
+
+            document.getElementById('edit-reading-value').value = readingMatch ? readingMatch[1] : '';
+            populateTestPointWeldDropdown();
+            document.getElementById('edit-test-point').value = testPoint;
+            document.getElementById('edit-comment').value = comment;
+            document.getElementById('modal-edit-reading').style.display = 'block';
+        }
+
+        function saveEditedReading() {
+            const reading = document.getElementById('edit-reading-value').value;
+            const testPoint = document.getElementById('edit-test-point').value;
+            const comment = document.getElementById('edit-comment').value;
+
+            // Validate inputs before proceeding
+            if (!reading || !testPoint) {
+                alert('Please enter a reading and select a test point or weld.');
+                return;
+            }
+
+            try {
+                const parsedReading = parseFloat(reading);
+                if (isNaN(parsedReading)) {
+                    throw new Error('Reading must be a valid number.');
+                }
+
+                // Update the cell content
+                currentCell.innerHTML = `Min: ${parsedReading.toFixed(2)} mm<br>${testPoint}`;
+                currentCell.classList.add('filled');
+                currentCell.setAttribute('data-test-point', testPoint);
+
+                // Save the comment
+                const year = currentCell.parentElement.cells[0].textContent;
+                const commentKey = `${year}-${testPoint}`;
+                comments[commentKey] = comment;
+
+                // Update UI and close modal
+                updateCellColor(currentCell);
+                updateCorrosionRates();
+                compareReadings();
+                closeModal('modal-edit-reading');
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+    </script>
+</body>
+</html>

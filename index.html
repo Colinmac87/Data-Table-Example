@@ -380,6 +380,10 @@
             <h3>Edit Reading</h3>
             <div class="grid">
                 <div>
+                    <label>Year:</label>
+                    <input type="text" id="edit-year" class="maximo-input" readonly>
+                </div>
+                <div>
                     <label>Minimum Reading (mm):</label>
                     <input type="text" id="edit-reading-value" class="maximo-input">
                 </div>
@@ -407,6 +411,9 @@
     <script>
         let currentCell = null;
         let currentTestPoint = null; // Store the test point/weld separately to avoid DOM issues
+        let currentYear = null; // Store the year when editing from Compare Readings
+        let currentDiameter = null; // Store the diameter when editing from Compare Readings
+        let isCompareReadingEdit = false; // Flag to indicate if we're editing from Compare Readings
         let comments = {
             "TP1": "Spot reading only",
             "W1": "Slight internal loss",
@@ -431,6 +438,10 @@
             "24.00": 11
         };
         let corrosionRateCalculations = []; // Store calculations for the new tab
+        const diameters = ['1.50', '4.00', '6.00', '10.00', '12.00', '14.00', '16.00', '18.00', '20.00', '22.00', '24.00'];
+
+        // Data structure to store all readings
+        let readingsData = {};
 
         function attachEditableListeners() {
             const editableCells = document.querySelectorAll('.editable');
@@ -438,6 +449,12 @@
                 // Remove existing listeners to prevent duplicates
                 cell.removeEventListener('click', openEditReadingModal);
                 cell.addEventListener('click', () => openEditReadingModal(cell));
+            });
+
+            const editableCompareCells = document.querySelectorAll('.editable-compare');
+            editableCompareCells.forEach(cell => {
+                cell.removeEventListener('click', openEditReadingModalFromCompare);
+                cell.addEventListener('click', () => openEditReadingModalFromCompare(cell));
             });
         }
 
@@ -480,8 +497,8 @@
 
         function openAddRowModal() {
             const dateInput = document.getElementById('new-row-date');
-            // Set default date to today's date (2025-05-17)
-            dateInput.value = '2025-05-17';
+            // Set default date to today's date (2025-05-18)
+            dateInput.value = '2025-05-18';
             // Close the Edit Reading modal if it's open to prevent stale currentCell references
             closeModal('modal-edit-reading');
             currentCell = null; // Reset currentCell
@@ -512,6 +529,9 @@
             if (modalId === 'modal-edit-reading') {
                 currentCell = null;
                 currentTestPoint = null;
+                currentYear = null;
+                currentDiameter = null;
+                isCompareReadingEdit = false;
             }
         }
 
@@ -550,8 +570,28 @@
             if (date) {
                 const table = document.querySelector('table tbody');
                 const newRow = document.createElement('tr');
-                newRow.innerHTML = `<td>${new Date(date).toLocaleDateString('en-GB')}</td>` + '<td class="editable">-</td>'.repeat(11);
-                
+                const dateCell = document.createElement('td');
+                const formattedDate = new Date(date).toLocaleDateString('en-GB');
+                dateCell.textContent = formattedDate;
+                newRow.appendChild(dateCell);
+
+                // Initialize readingsData for the new year
+                if (!readingsData[formattedDate]) {
+                    readingsData[formattedDate] = {};
+                    diameters.forEach(diameter => {
+                        readingsData[formattedDate][diameter] = [];
+                    });
+                }
+
+                // Add editable cells with data-diameter attributes
+                diameters.forEach(diameter => {
+                    const cell = document.createElement('td');
+                    cell.className = 'editable';
+                    cell.setAttribute('data-diameter', diameter);
+                    cell.textContent = '-';
+                    newRow.appendChild(cell);
+                });
+
                 // Collect all rows to find the "Measurements" section
                 const rows = table.querySelectorAll('tr');
                 let measurementsSectionStart = -1;
@@ -607,43 +647,103 @@
             if (!cell) return; // Exit if cell is invalid
 
             const diameter = cell.getAttribute('data-diameter');
+            console.log(`updateCellColor: diameter=${diameter}`); // Debug log
+
             const anomalyRow = document.querySelector('.anomaly-criteria');
             const diameters = ['1.50', '4.00', '6.00', '10.00', '12.00', '14.00', '16.00', '18.00', '20.00', '22.00', '24.00'];
-            const index = diameters.indexOf(diameter) + 1;
+            const index = diameters.indexOf(diameter);
+            console.log(`updateCellColor: index=${index}`); // Debug log
 
-            // Check if anomalyRow and its cells exist
-            if (!anomalyRow || !anomalyRow.cells || !anomalyRow.cells[index]) {
-                console.log('Anomaly criteria row or cell not found; skipping color update.');
+            // Check if diameter is valid and index is within bounds
+            if (index === -1 || !anomalyRow || !anomalyRow.cells || !anomalyRow.cells[index + 1]) {
+                console.log('updateCellColor: Invalid diameter or anomaly row/cell not found; skipping color update.');
                 return;
             }
 
-            const anomalyCriteria = parseFloat(anomalyRow.cells[index].textContent);
+            const anomalyCriteria = parseFloat(anomalyRow.cells[index + 1].textContent);
             const readingMatch = cell.textContent.match(/Min: ([\d.]+) mm/);
             const reading = readingMatch ? parseFloat(readingMatch[1]) : null;
+            console.log(`updateCellColor: anomalyCriteria=${anomalyCriteria}, reading=${reading}`); // Debug log
 
             // Remove existing color classes
             cell.classList.remove('below-nominal-anomaly', 'above-nominal');
 
-            if (reading !== null) {
+            if (reading !== null && !isNaN(anomalyCriteria)) {
                 if (reading < anomalyCriteria) {
+                    console.log(`updateCellColor: Reading ${reading} < ${anomalyCriteria}, setting below-nominal-anomaly (orange)`);
                     cell.classList.add('below-nominal-anomaly'); // Orange
                 } else {
+                    console.log(`updateCellColor: Reading ${reading} >= ${anomalyCriteria}, setting above-nominal (green)`);
                     cell.classList.add('above-nominal'); // Green
                 }
+            } else {
+                console.log('updateCellColor: No valid reading or anomaly criteria; skipping color update.');
             }
         }
 
         function getNominalWallThickness(diameter) {
             const nominalRow = document.querySelector('.nominal-wall-thickness');
             const index = diameterMapping[diameter];
+            console.log(`getNominalWallThickness: diameter=${diameter}, index=${index}`); // Debug log
 
             // Check if nominalRow and its cells exist
             if (!nominalRow || !nominalRow.cells || !nominalRow.cells[index]) {
-                console.log('Nominal wall thickness row or cell not found; returning default value.');
+                console.log('getNominalWallThickness: Nominal wall thickness row or cell not found; returning default value.');
                 return '-';
             }
 
-            return nominalRow.cells[index].textContent;
+            const nominalThickness = nominalRow.cells[index].textContent;
+            console.log(`getNominalWallThickness: nominalThickness=${nominalThickness}`); // Debug log
+            return nominalThickness;
+        }
+
+        function updateMainTable() {
+            const table = document.querySelector('table tbody');
+            if (!table) return;
+
+            const rows = table.querySelectorAll('tr');
+            let measurementsSectionStart = -1;
+            let measurementsSectionEnd = -1;
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const firstCell = row.querySelector('td');
+                if (firstCell && firstCell.textContent === 'Measurements') {
+                    measurementsSectionStart = i;
+                } else if (firstCell && firstCell.textContent === 'Corrosion Rate') {
+                    measurementsSectionEnd = i - 1;
+                    break;
+                }
+            }
+
+            if (measurementsSectionStart === -1 || measurementsSectionEnd === -1) return;
+
+            // Update each measurement row in the main table
+            for (let i = measurementsSectionStart + 1; i <= measurementsSectionEnd; i++) {
+                const row = rows[i];
+                const year = row.cells[0].textContent;
+                if (!readingsData[year]) continue;
+
+                for (let j = 1; j < row.cells.length; j++) {
+                    const cell = row.cells[j];
+                    const diameter = cell.getAttribute('data-diameter');
+                    const readings = readingsData[year][diameter] || [];
+
+                    if (readings.length === 0) {
+                        cell.innerHTML = '-';
+                        cell.removeAttribute('data-test-point');
+                    } else {
+                        // Find the lowest reading
+                        const lowest = readings.reduce((min, r) => r.reading < min.reading ? r : min, readings[0]);
+                        cell.innerHTML = `Min: ${lowest.reading.toFixed(2)} mm<br>${lowest.testPoint}`;
+                        cell.setAttribute('data-test-point', lowest.testPoint);
+                        cell.setAttribute('data-diameter', diameter); // Ensure data-diameter is preserved
+                        updateCellColor(cell);
+                    }
+                }
+            }
+
+            // Reattach event listeners
+            attachEditableListeners();
         }
 
         function updateCorrosionRates() {
@@ -692,13 +792,11 @@
             diameters.forEach((diameter, index) => {
                 const readings = [];
                 measurementRows.forEach(row => {
-                    const cell = row.cells[index + 1];
-                    const readingMatch = cell.textContent.match(/Min: ([\d.]+) mm/);
-                    if (readingMatch) {
-                        const reading = parseFloat(readingMatch[1]);
-                        const date = row.cells[0].textContent;
-                        readings.push({ date, reading });
-                    }
+                    const year = row.cells[0].textContent;
+                    const yearReadings = readingsData[year][diameter] || [];
+                    yearReadings.forEach(readingEntry => {
+                        readings.push({ date: year, reading: readingEntry.reading });
+                    });
                 });
 
                 // Need at least 2 readings to calculate corrosion rates
@@ -714,7 +812,7 @@
                             diameter,
                             type: 'Short Term',
                             rate: shortTermRate.toFixed(2),
-                            formula: 'ST = (tinitial - tactual) / time (years)',
+                            formula: 'ST = (previous - tactual) / time (years)', // Updated formula
                             readings: `(${lastTwo[0].reading} mm - ${lastTwo[1].reading} mm)`,
                             timeDiff: `${shortTermTimeDiff.toFixed(2)} years`,
                             calculation: `${(lastTwo[0].reading - lastTwo[1].reading).toFixed(2)} mm / ${shortTermTimeDiff.toFixed(2)} years`,
@@ -820,32 +918,25 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `<td>${tp}</td>`;
 
-                // Add minimum wall thickness for each year, with nominal thickness below
+                // Add readings for each year
                 years.forEach(year => {
-                    let reading = '-';
-                    let nominalThickness = '-';
-                    let found = false;
-                    for (let i = 0; i < measurementRows.length; i++) {
-                        const row = measurementRows[i];
-                        if (row.cells[0].textContent === year) {
-                            for (let j = 1; j < row.cells.length; j++) {
-                                const cell = row.cells[j];
-                                const testPointMatch = cell.getAttribute('data-test-point');
-                                const readingMatch = cell.textContent.match(/Min: ([\d.]+) mm/);
-                                if (testPointMatch === tp && readingMatch) {
-                                    reading = `${readingMatch[1]} mm`;
-                                    nominalThickness = getNominalWallThickness(cell.getAttribute('data-diameter'));
-                                    found = true;
-                                    break;
-                                }
+                    const readingsForTp = [];
+                    diameters.forEach(diameter => {
+                        const yearReadings = readingsData[year][diameter] || [];
+                        yearReadings.forEach(readingEntry => {
+                            if (readingEntry.testPoint === tp) {
+                                readingsForTp.push({ ...readingEntry, diameter });
                             }
-                        }
-                        if (found) break;
-                    }
-                    if (reading === '-') {
-                        row.innerHTML += `<td>${reading}</td>`;
+                        });
+                    });
+
+                    if (readingsForTp.length === 0) {
+                        // Empty cell, make it editable
+                        row.innerHTML += `<td class="editable-compare" data-year="${year}" data-entity="testPoint" data-entity-value="${tp}">-</td>`;
                     } else {
-                        row.innerHTML += `<td>${reading}<br><span style="color: #3B82F6; font-size: 12px;">Nominal: ${nominalThickness} mm</span></td>`;
+                        // Display all readings for this test point and year
+                        const readingsHtml = readingsForTp.map(r => `${r.reading.toFixed(2)} mm<br><span style="color: #3B82F6; font-size: 12px;">Nominal: ${getNominalWallThickness(r.diameter)} mm</span>`).join('<br>');
+                        row.innerHTML += `<td>${readingsHtml}</td>`;
                     }
                 });
 
@@ -879,32 +970,25 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `<td>${weld}</td>`;
 
-                // Add minimum wall thickness for each year, with nominal thickness below
+                // Add readings for each year
                 years.forEach(year => {
-                    let reading = '-';
-                    let nominalThickness = '-';
-                    let found = false;
-                    for (let i = 0; i < measurementRows.length; i++) {
-                        const row = measurementRows[i];
-                        if (row.cells[0].textContent === year) {
-                            for (let j = 1; j < row.cells.length; j++) {
-                                const cell = row.cells[j];
-                                const testPointMatch = cell.getAttribute('data-test-point');
-                                const readingMatch = cell.textContent.match(/Min: ([\d.]+) mm/);
-                                if (testPointMatch === weld && readingMatch) {
-                                    reading = `${readingMatch[1]} mm`;
-                                    nominalThickness = getNominalWallThickness(cell.getAttribute('data-diameter'));
-                                    found = true;
-                                    break;
-                                }
+                    const readingsForWeld = [];
+                    diameters.forEach(diameter => {
+                        const yearReadings = readingsData[year][diameter] || [];
+                        yearReadings.forEach(readingEntry => {
+                            if (readingEntry.testPoint === weld) {
+                                readingsForWeld.push({ ...readingEntry, diameter });
                             }
-                        }
-                        if (found) break;
-                    }
-                    if (reading === '-') {
-                        row.innerHTML += `<td>${reading}</td>`;
+                        });
+                    });
+
+                    if (readingsForWeld.length === 0) {
+                        // Empty cell, make it editable
+                        row.innerHTML += `<td class="editable-compare" data-year="${year}" data-entity="weld" data-entity-value="${weld}">-</td>`;
                     } else {
-                        row.innerHTML += `<td>${reading}<br><span style="color: #3B82F6; font-size: 12px;">Nominal: ${nominalThickness} mm</span></td>`;
+                        // Display all readings for this weld and year
+                        const readingsHtml = readingsForWeld.map(r => `${r.reading.toFixed(2)} mm<br><span style="color: #3B82F6; font-size: 12px;">Nominal: ${getNominalWallThickness(r.diameter)} mm</span>`).join('<br>');
+                        row.innerHTML += `<td>${readingsHtml}</td>`;
                     }
                 });
 
@@ -916,18 +1000,33 @@
                 weldsBody.appendChild(row);
             });
 
-            // Add event listeners to comment inputs in both tabs
-            const commentInputs = document.querySelectorAll('#modal-compare .comment-input');
-            commentInputs.forEach(input => {
-                input.removeEventListener('input', handleCommentInput); // Prevent duplicate listeners
-                input.addEventListener('input', handleCommentInput);
-            });
-
-            // Reattach event listeners to editable cells after DOM updates
+            // Add event listeners to comment inputs and editable cells in both tabs
             attachEditableListeners();
-            // Reset currentCell after DOM update to prevent stale references
-            currentCell = null;
-            currentTestPoint = null;
+        }
+
+        function openEditReadingModalFromCompare(cell) {
+            isCompareReadingEdit = true;
+            currentYear = cell.getAttribute('data-year');
+            const entity = cell.getAttribute('data-entity');
+            const entityValue = cell.getAttribute('data-entity-value');
+            currentTestPoint = entityValue;
+
+            // Find the diameter by mapping the column index
+            const columnIndex = Array.from(cell.parentElement.children).indexOf(cell);
+            currentDiameter = diameters[columnIndex - 1]; // -1 because first column is the label
+
+            console.log(`openEditReadingModalFromCompare: year=${currentYear}, entity=${entity}, entityValue=${entityValue}, diameter=${currentDiameter}`);
+
+            // Open the Edit Reading modal
+            document.getElementById('edit-year').value = currentYear;
+            document.getElementById('edit-reading-value').value = ''; // Empty since it's a new reading
+            populateTestPointWeldDropdown();
+            document.getElementById('edit-test-point').value = entityValue;
+            document.getElementById('edit-test-point').disabled = true; // Disable changing the test point/weld
+            const commentKey = entityValue;
+            const comment = comments[commentKey] || '';
+            document.getElementById('edit-comment').value = comment;
+            document.getElementById('modal-edit-reading').style.display = 'block';
         }
 
         function handleCommentInput(event) {
@@ -936,6 +1035,42 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
+            const table = document.querySelector('table tbody');
+            const rows = table.querySelectorAll('tr');
+            let measurementsSectionStart = -1;
+            let measurementsSectionEnd = -1;
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const firstCell = row.querySelector('td');
+                if (firstCell && firstCell.textContent === 'Measurements') {
+                    measurementsSectionStart = i;
+                } else if (firstCell && firstCell.textContent === 'Corrosion Rate') {
+                    measurementsSectionEnd = i - 1;
+                    break;
+                }
+            }
+
+            // Initialize readingsData from existing table
+            for (let i = measurementsSectionStart + 1; i <= measurementsSectionEnd; i++) {
+                const row = rows[i];
+                const year = row.cells[0].textContent;
+                readingsData[year] = {};
+                diameters.forEach(diameter => {
+                    readingsData[year][diameter] = [];
+                });
+
+                for (let j = 1; j < row.cells.length; j++) {
+                    const cell = row.cells[j];
+                    const diameter = cell.getAttribute('data-diameter');
+                    const readingMatch = cell.textContent.match(/Min: ([\d.]+) mm/);
+                    const testPoint = cell.getAttribute('data-test-point');
+                    if (readingMatch && testPoint) {
+                        const reading = parseFloat(readingMatch[1]);
+                        readingsData[year][diameter].push({ reading, testPoint });
+                    }
+                }
+            }
+
             const editableCells = document.querySelectorAll('.editable');
             editableCells.forEach(cell => {
                 cell.addEventListener('click', () => openEditReadingModal(cell));
@@ -947,6 +1082,7 @@
         });
 
         function openEditReadingModal(cell) {
+            isCompareReadingEdit = false;
             currentCell = cell;
             const currentText = cell.textContent;
             const readingMatch = currentText.match(/Min: ([\d.]+) mm/);
@@ -956,9 +1092,15 @@
             const commentKey = testPoint;
             const comment = comments[commentKey] || '';
 
+            // Set the year field
+            const row = cell.parentElement;
+            const year = row.cells[0].textContent;
+            document.getElementById('edit-year').value = year;
+
             document.getElementById('edit-reading-value').value = readingMatch ? readingMatch[1] : '';
             populateTestPointWeldDropdown();
             document.getElementById('edit-test-point').value = testPoint;
+            document.getElementById('edit-test-point').disabled = false; // Allow changing test point in main table
             document.getElementById('edit-comment').value = comment;
             document.getElementById('modal-edit-reading').style.display = 'block';
         }
@@ -969,8 +1111,9 @@
             const comment = document.getElementById('edit-comment').value;
 
             // Validate inputs before proceeding
-            if (!reading || !testPoint) {
-                alert('Please enter a reading and select a test point or weld.');
+            // Skip testPoint validation when editing from Compare Readings since it's pre-set
+            if (!reading || (!isCompareReadingEdit && !testPoint)) {
+                alert('Please enter a reading' + (!isCompareReadingEdit ? ' and select a test point or weld.' : '.'));
                 closeModal('modal-edit-reading');
                 return;
             }
@@ -981,24 +1124,50 @@
                     throw new Error('Reading must be a valid number.');
                 }
 
-                // Check if currentCell is valid; if not, silently exit and close the modal
-                if (!currentCell) {
-                    console.log('currentCell is invalid; closing modal without saving.');
-                    closeModal('modal-edit-reading');
-                    return;
-                }
+                if (isCompareReadingEdit) {
+                    // Save new reading from Compare Readings modal
+                    if (!readingsData[currentYear][currentDiameter]) {
+                        readingsData[currentYear][currentDiameter] = [];
+                    }
+                    readingsData[currentYear][currentDiameter].push({
+                        reading: parsedReading,
+                        testPoint: testPoint
+                    });
+                    console.log(`saveEditedReading: Added new reading to readingsData[${currentYear}][${currentDiameter}]: ${parsedReading} mm, ${testPoint}`);
+                } else {
+                    // Save reading from main table
+                    if (!currentCell) {
+                        console.log('currentCell is invalid; closing modal without saving.');
+                        closeModal('modal-edit-reading');
+                        return;
+                    }
 
-                // Update the cell content
-                currentCell.innerHTML = `Min: ${parsedReading.toFixed(2)} mm<br>${testPoint}`;
-                currentCell.classList.add('filled');
-                currentCell.setAttribute('data-test-point', testPoint);
+                    const diameter = currentCell.getAttribute('data-diameter');
+                    const row = currentCell.parentElement;
+                    const year = row.cells[0].textContent;
+
+                    // Find the existing reading in readingsData and replace it
+                    const readings = readingsData[year][diameter];
+                    const existingIndex = readings.findIndex(r => r.testPoint === currentTestPoint);
+                    if (existingIndex !== -1) {
+                        readings.splice(existingIndex, 1); // Remove the old reading
+                    }
+                    readings.push({ reading: parsedReading, testPoint: testPoint });
+                    console.log(`saveEditedReading: Updated readingsData[${year}][${diameter}]: ${parsedReading} mm, ${testPoint}`);
+
+                    // Update the cell content (will be overridden by updateMainTable)
+                    currentCell.innerHTML = `Min: ${parsedReading.toFixed(2)} mm<br>${testPoint}`;
+                    currentCell.classList.add('filled');
+                    currentCell.setAttribute('data-test-point', testPoint);
+                    currentCell.setAttribute('data-diameter', diameter); // Ensure data-diameter is preserved
+                }
 
                 // Save the comment using the test point (single comment per test point/weld)
                 const commentKey = testPoint;
                 comments[commentKey] = comment;
 
                 // Update UI and close modal
-                updateCellColor(currentCell);
+                updateMainTable();
                 updateCorrosionRates();
                 compareReadings();
                 closeModal('modal-edit-reading');
